@@ -21,7 +21,7 @@ main :: proc() {
 	accumulator := f32(0)
 	for !rl.WindowShouldClose() {
 		frame_time := rl.GetFrameTime()
-		if frame_time > 0.25 { frame_time = 0.25 } // avoid spiral of death on stalls
+		if frame_time > 0.25 {frame_time = 0.25} 	// avoid spiral of death on stalls
 		accumulator += frame_time
 		for accumulator >= FIXED_DT {
 			update_player(&player, FIXED_DT)
