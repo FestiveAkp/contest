@@ -15,7 +15,8 @@ main :: proc() {
 	rl.SetTargetFPS(60)
 
 	player := Player {
-		pos = {WINDOW_WIDTH / 2, GROUND_Y},
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
+		grounded = true,
 	}
 
 	accumulator := f32(0)
