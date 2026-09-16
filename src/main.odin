@@ -34,7 +34,7 @@ main :: proc() {
 			simulate_player(
 				&player,
 				sample.move_x,
-				sample.down_held,
+				sample.crouch_held,
 				sample.jump_pressed,
 				FIXED_DT,
 			)
