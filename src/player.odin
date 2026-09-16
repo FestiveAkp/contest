@@ -14,21 +14,9 @@ Player :: struct {
 	grounded: bool,
 }
 
-update_player :: proc(p: ^Player, dt: f32) {
-	move := f32(0)
-	if rl.IsKeyDown(.A) {
-		move -= 1
-	}
-	if rl.IsKeyDown(.D) {
-		move += 1
-	}
-
-	jump := rl.IsKeyPressed(.W)
-
-	simulate_player(p, move, jump, dt)
-}
-
-// Pure simulation step, decoupled from raylib input polling so it can be unit tested directly.
+// Advances the player by one tick. Takes plain values instead of reading
+// raylib directly, so tests can call it with made-up input, and rollback
+// can later call it again with a logged TickInput to redo a past tick.
 simulate_player :: proc(p: ^Player, move: f32, jump: bool, dt: f32) {
 	p.pos.x += move * PLAYER_SPEED * dt
 	p.pos.x = clamp(p.pos.x, 20, WINDOW_WIDTH - 20)

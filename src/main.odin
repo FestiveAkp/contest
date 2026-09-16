@@ -7,7 +7,7 @@ WINDOW_HEIGHT :: 720
 WINDOW_NAME :: "Contest"
 GROUND_Y :: WINDOW_HEIGHT - 100
 
-FIXED_DT :: f32(1.0 / 60.0) // fixed sim step, decoupled from render rate, for deterministic replay/rollback later
+FIXED_DT :: f32(1.0 / 60.0) // how much game time each simulate_player call advances, independent of the screen's redraw rate
 
 main :: proc() {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME)
@@ -19,13 +19,19 @@ main :: proc() {
 		grounded = true,
 	}
 
-	accumulator := f32(0)
+	pending_input := PendingInput{}
+
+	accumulator := f32(0) // game time not yet simulated
 	for !rl.WindowShouldClose() {
 		frame_time := rl.GetFrameTime()
-		if frame_time > 0.25 {frame_time = 0.25} 	// avoid spiral of death on stalls
+		if frame_time > 0.25 {frame_time = 0.25} 	// cap it so a stall doesn't force a huge catch-up burst
+
+		poll_input(&pending_input) // read raylib once per screen redraw, before simulate_player runs
+
 		accumulator += frame_time
 		for accumulator >= FIXED_DT {
-			update_player(&player, FIXED_DT)
+			sample := consume_input(&pending_input)
+			simulate_player(&player, sample.move_x, sample.jump_pressed, FIXED_DT)
 			accumulator -= FIXED_DT
 		}
 
