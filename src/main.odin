@@ -14,7 +14,7 @@ main :: proc() {
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
 
-	player := Player {
+	player := Fighter {
 		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
 		grounded = true,
 	}
@@ -31,7 +31,7 @@ main :: proc() {
 		accumulator += frame_time
 		for accumulator >= FIXED_DT {
 			tick_input := consume_input(&pending_input)
-			simulate_player(&player, tick_input, FIXED_DT)
+			simulate_fighter(&player, tick_input, FIXED_DT)
 			accumulator -= FIXED_DT
 		}
 
@@ -39,7 +39,7 @@ main :: proc() {
 		rl.ClearBackground(rl.RAYWHITE)
 
 		rl.DrawLine(0, GROUND_Y, WINDOW_WIDTH, GROUND_Y, rl.DARKGRAY)
-		draw_player(player)
+		draw_fighter(player)
 
 		rl.DrawFPS(10, 10)
 		rl.EndDrawing()

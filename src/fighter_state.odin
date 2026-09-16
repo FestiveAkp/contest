@@ -1,11 +1,11 @@
 package main
 
-// Every state a player can be in. Attacks and hit reactions will key their
+// Every state a fighter can be in. Attacks and hit reactions will key their
 // hitbox/hurtbox data and animation off (state, state_frame), so the full
 // set is declared now even though only Idle/Walk/Crouch/Jump are reachable
 // today — Attack/Hitstun/Blockstun/Knockdown have no transition into them
 // yet and will be wired up alongside the attack and hit-detection systems.
-PlayerState :: enum {
+FighterState :: enum {
 	Idle,
 	Walk,
 	Crouch,
@@ -19,10 +19,10 @@ PlayerState :: enum {
 // Derives this tick's state from movement input and physics results, and
 // resets state_frame whenever the state changes so attack/animation code
 // can read "how many frames have I been in this state" later.
-update_player_state :: proc(p: ^Player, input: TickInput) {
-	new_state: PlayerState
+update_fighter_state :: proc(f: ^Fighter, input: TickInput) {
+	new_state: FighterState
 	switch {
-	case !p.grounded:
+	case !f.grounded:
 		new_state = .Jump
 	case input.crouch_held:
 		new_state = .Crouch
@@ -32,10 +32,10 @@ update_player_state :: proc(p: ^Player, input: TickInput) {
 		new_state = .Idle
 	}
 
-	if new_state != p.state {
-		p.state = new_state
-		p.state_frame = 0
+	if new_state != f.state {
+		f.state = new_state
+		f.state_frame = 0
 	} else {
-		p.state_frame += 1
+		f.state_frame += 1
 	}
 }
