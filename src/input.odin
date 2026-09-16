@@ -43,11 +43,11 @@ poll_input :: proc(pending: ^PendingInput) {
 // TickInput, then clears jump_pressed so a second simulate_player call in
 // the same redraw doesn't see the same press again.
 consume_input :: proc(pending: ^PendingInput) -> TickInput {
-	sample := TickInput {
+	input := TickInput {
 		move_x       = pending.move_x,
 		crouch_held  = pending.crouch_held,
 		jump_pressed = pending.jump_pressed,
 	}
 	pending.jump_pressed = false
-	return sample
+	return input
 }

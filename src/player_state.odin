@@ -19,14 +19,14 @@ PlayerState :: enum {
 // Derives this tick's state from movement input and physics results, and
 // resets state_frame whenever the state changes so attack/animation code
 // can read "how many frames have I been in this state" later.
-update_player_state :: proc(p: ^Player, move: f32, down: bool) {
+update_player_state :: proc(p: ^Player, input: TickInput) {
 	new_state: PlayerState
 	switch {
 	case !p.grounded:
 		new_state = .Jump
-	case down:
+	case input.crouch_held:
 		new_state = .Crouch
-	case move != 0:
+	case input.move_x != 0:
 		new_state = .Walk
 	case:
 		new_state = .Idle

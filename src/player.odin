@@ -19,13 +19,13 @@ Player :: struct {
 // Advances the player by one tick. Takes plain values instead of reading
 // raylib directly, so tests can call it with made-up input, and rollback
 // can later call it again with a logged TickInput to redo a past tick.
-simulate_player :: proc(p: ^Player, move: f32, down: bool, jump: bool, dt: f32) {
-	if !down {
-		p.pos.x += move * PLAYER_SPEED * dt
+simulate_player :: proc(p: ^Player, input: TickInput, dt: f32) {
+	if !input.crouch_held {
+		p.pos.x += input.move_x * PLAYER_SPEED * dt
 		p.pos.x = clamp(p.pos.x, 20, WINDOW_WIDTH - 20)
 	}
 
-	if jump && p.grounded && !down {
+	if input.jump_pressed && p.grounded && !input.crouch_held {
 		p.vel_y = JUMP_VELOCITY
 		p.grounded = false
 	}
@@ -39,7 +39,7 @@ simulate_player :: proc(p: ^Player, move: f32, down: bool, jump: bool, dt: f32) 
 		p.grounded = true
 	}
 
-	update_player_state(p, move, down)
+	update_player_state(p, input)
 }
 
 draw_player :: proc(p: Player) {
