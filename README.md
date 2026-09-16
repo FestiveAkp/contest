@@ -18,7 +18,7 @@ odin version
 ## Running the Game
 
 ```sh
-./run.sh
+./scripts/run.sh
 ```
 
 This compiles the project and launches the window immediately.
@@ -26,7 +26,7 @@ This compiles the project and launches the window immediately.
 To just build without running:
 
 ```sh
-./build.sh
+./scripts/build.sh
 ```
 
 The compiled binary is placed at `build/contest`.
