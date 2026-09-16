@@ -31,7 +31,13 @@ main :: proc() {
 		accumulator += frame_time
 		for accumulator >= FIXED_DT {
 			sample := consume_input(&pending_input)
-			simulate_player(&player, sample.move_x, sample.jump_pressed, FIXED_DT)
+			simulate_player(
+				&player,
+				sample.move_x,
+				sample.down_held,
+				sample.jump_pressed,
+				FIXED_DT,
+			)
 			accumulator -= FIXED_DT
 		}
 

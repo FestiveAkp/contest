@@ -8,6 +8,7 @@ import rl "vendor:raylib"
 // again instead of needing live keyboard state.
 TickInput :: struct {
 	move_x:       f32, // -1, 0, or 1
+	down_held:    bool,
 	jump_pressed: bool,
 }
 
@@ -17,6 +18,7 @@ TickInput :: struct {
 // it, so exactly one simulate_player call picks up each press.
 PendingInput :: struct {
 	move_x:       f32,
+	down_held:    bool,
 	jump_pressed: bool,
 }
 
@@ -30,6 +32,7 @@ poll_input :: proc(pending: ^PendingInput) {
 		move += 1
 	}
 	pending.move_x = move
+	pending.down_held = rl.IsKeyDown(.S)
 
 	if rl.IsKeyPressed(.W) {
 		pending.jump_pressed = true
@@ -42,6 +45,7 @@ poll_input :: proc(pending: ^PendingInput) {
 consume_input :: proc(pending: ^PendingInput) -> TickInput {
 	sample := TickInput {
 		move_x       = pending.move_x,
+		down_held    = pending.down_held,
 		jump_pressed = pending.jump_pressed,
 	}
 	pending.jump_pressed = false
