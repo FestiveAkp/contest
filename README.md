@@ -1,6 +1,6 @@
 # Contest
 
-A stick figure fighting game built in [Odin](https://odin-lang.org/).
+A stick figure fighting game built in [Odin](https://odin-lang.org/), inspired by the fast-paced, high-mobility style of modern 2D fighters. It's a 1v1 game with combos as a core feature.
 
 ## Requirements
 
