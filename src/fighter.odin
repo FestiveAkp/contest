@@ -28,19 +28,27 @@ Fighter :: struct {
 simulate_fighter :: proc(f: ^Fighter, input: TickInput, opponent_x: f32, dt: f32) {
 	f.facing = opponent_x >= f.pos.x ? .Right : .Left
 
-	if !input.crouch_held {
-		f.pos.x += input.move_x * FIGHTER_SPEED * dt
-		f.pos.x = clamp(f.pos.x, 20, WINDOW_WIDTH - 20)
+	attacking := f.state == .Attack || (input.light_attack_pressed && f.state != .Crouch)
+
+	if !attacking {
+		if !input.crouch_held {
+			// Walk left/right
+			f.pos.x += input.move_x * FIGHTER_SPEED * dt
+			f.pos.x = clamp(f.pos.x, 20, WINDOW_WIDTH - 20)
+		}
+
+		if input.jump_pressed && f.grounded && !input.crouch_held {
+			// Jump
+			f.vel_y = JUMP_VELOCITY
+			f.grounded = false
+		}
 	}
 
-	if input.jump_pressed && f.grounded && !input.crouch_held {
-		f.vel_y = JUMP_VELOCITY
-		f.grounded = false
-	}
-
+	// Apply gravity
 	f.vel_y += GRAVITY * dt
 	f.pos.y += f.vel_y * dt
 
+	// Keep player on the ground
 	if f.pos.y >= GROUND_Y {
 		f.pos.y = GROUND_Y
 		f.vel_y = 0
@@ -57,8 +65,16 @@ draw_fighter :: proc(f: Fighter) {
 	}
 
 	rect := rl.Rectangle{f.pos.x - FIGHTER_WIDTH / 2, f.pos.y - height, FIGHTER_WIDTH, height}
-	rl.DrawRectangleRec(rect, rl.BLACK)
+	rl.DrawRectangleRec(rect, f.state == .Attack ? rl.BLUE : rl.BLACK)
 
 	notch_x := f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 : f.pos.x - FIGHTER_WIDTH / 2
 	rl.DrawCircleV({notch_x, f.pos.y - height}, 5, rl.RED)
+
+	if f.state == .Attack &&
+	   f.state_frame >= LIGHT_ATTACK_STARTUP_FRAMES &&
+	   f.state_frame < LIGHT_ATTACK_STARTUP_FRAMES + LIGHT_ATTACK_ACTIVE_FRAMES {
+		arm_x :=
+			f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 + FIGHTER_WIDTH : f.pos.x - FIGHTER_WIDTH / 2 - FIGHTER_WIDTH
+		rl.DrawLineEx({f.pos.x, f.pos.y - height / 2}, {arm_x, f.pos.y - height / 2}, 6, rl.RED)
+	}
 }

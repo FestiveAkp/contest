@@ -321,3 +321,113 @@ test_state_frame_resets_on_transition_and_counts_up_otherwise :: proc(t: ^testin
 	testing.expect_value(t, f.state, FighterState.Idle)
 	testing.expect_value(t, f.state_frame, 0)
 }
+
+@(test)
+test_light_attack_pressed_enters_attack_state :: proc(t: ^testing.T) {
+	f := Fighter {
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
+		grounded = true,
+	}
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect_value(t, f.state, FighterState.Attack)
+}
+
+@(test)
+test_light_attack_locks_movement :: proc(t: ^testing.T) {
+	f := Fighter {
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
+		grounded = true,
+	}
+	start_x := f.pos.x
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 1, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect_value(t, f.pos.x, start_x)
+
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 1, crouch_held = false, light_attack_pressed = false},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect(t, f.pos.x == start_x, "movement should stay locked for the rest of the attack")
+}
+
+@(test)
+test_light_attack_ignored_while_airborne :: proc(t: ^testing.T) {
+	f := Fighter {
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y - 100},
+		grounded = false,
+	}
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect_value(t, f.state, FighterState.Jump)
+}
+
+@(test)
+test_light_attack_repress_does_not_reset_timer :: proc(t: ^testing.T) {
+	f := Fighter {
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
+		grounded = true,
+	}
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = false},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect_value(t, f.state_frame, 1)
+
+	// A second attack press mid-swing should not restart the attack.
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	testing.expect_value(t, f.state, FighterState.Attack)
+	testing.expect_value(t, f.state_frame, 2)
+}
+
+@(test)
+test_light_attack_returns_to_idle_after_total_frames :: proc(t: ^testing.T) {
+	f := Fighter {
+		pos      = {WINDOW_WIDTH / 2, GROUND_Y},
+		grounded = true,
+	}
+	simulate_fighter(
+		&f,
+		TickInput{move_x = 0, crouch_held = false, light_attack_pressed = true},
+		f.pos.x,
+		FIXED_DT,
+	)
+	for _ in 0 ..< LIGHT_ATTACK_TOTAL_FRAMES {
+		testing.expect_value(t, f.state, FighterState.Attack)
+		simulate_fighter(
+			&f,
+			TickInput{move_x = 0, crouch_held = false, light_attack_pressed = false},
+			f.pos.x,
+			FIXED_DT,
+		)
+	}
+	testing.expect_value(t, f.state, FighterState.Idle)
+	testing.expect_value(t, f.state_frame, 0)
+}

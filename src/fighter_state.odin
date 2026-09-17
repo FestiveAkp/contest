@@ -20,8 +20,15 @@ FighterState :: enum {
 // resets state_frame whenever the state changes so attack/animation code
 // can read "how many frames have I been in this state" later.
 update_fighter_state :: proc(f: ^Fighter, input: TickInput) {
+	if f.state == .Attack && f.state_frame < LIGHT_ATTACK_TOTAL_FRAMES - 1 {
+		f.state_frame += 1
+		return
+	}
+
 	new_state: FighterState
 	switch {
+	case input.light_attack_pressed && f.grounded:
+		new_state = .Attack
 	case !f.grounded:
 		new_state = .Jump
 	case input.crouch_held:
