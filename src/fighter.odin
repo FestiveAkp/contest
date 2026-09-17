@@ -8,18 +8,26 @@ FIGHTER_HEIGHT :: 120
 GRAVITY :: 2000
 JUMP_VELOCITY :: -800
 
+Facing :: enum {
+	Left,
+	Right,
+}
+
 Fighter :: struct {
 	pos:         rl.Vector2, // feet position (ground contact point)
 	vel_y:       f32,
 	grounded:    bool,
 	state:       FighterState,
 	state_frame: int, // ticks spent in the current state, reset on transition
+	facing:      Facing,
 }
 
 // Advances the fighter by one tick. Takes plain values instead of reading
 // raylib directly, so tests can call it with made-up input, and rollback
 // can later call it again with a logged TickInput to redo a past tick.
-simulate_fighter :: proc(f: ^Fighter, input: TickInput, dt: f32) {
+simulate_fighter :: proc(f: ^Fighter, input: TickInput, opponent_x: f32, dt: f32) {
+	f.facing = opponent_x >= f.pos.x ? .Right : .Left
+
 	if !input.crouch_held {
 		f.pos.x += input.move_x * FIGHTER_SPEED * dt
 		f.pos.x = clamp(f.pos.x, 20, WINDOW_WIDTH - 20)
@@ -50,4 +58,7 @@ draw_fighter :: proc(f: Fighter) {
 
 	rect := rl.Rectangle{f.pos.x - FIGHTER_WIDTH / 2, f.pos.y - height, FIGHTER_WIDTH, height}
 	rl.DrawRectangleRec(rect, rl.BLACK)
+
+	notch_x := f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 : f.pos.x - FIGHTER_WIDTH / 2
+	rl.DrawCircleV({notch_x, f.pos.y - height}, 5, rl.RED)
 }

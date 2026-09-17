@@ -17,10 +17,12 @@ main :: proc() {
 	player := Fighter {
 		pos      = {WINDOW_WIDTH / 4, GROUND_Y},
 		grounded = true,
+		facing   = .Right,
 	}
 	opponent := Fighter {
 		pos      = {3 * WINDOW_WIDTH / 4, GROUND_Y},
 		grounded = true,
+		facing   = .Left,
 	}
 
 	pending_input := PendingInput{}
@@ -34,11 +36,14 @@ main :: proc() {
 
 		accumulator += frame_time
 		for accumulator >= FIXED_DT {
+			opponent_pos_x := opponent.pos.x
+			player_pos_x := player.pos.x
+
 			tick_input_player := consume_input(&pending_input)
-			simulate_fighter(&player, tick_input_player, FIXED_DT)
+			simulate_fighter(&player, tick_input_player, opponent_pos_x, FIXED_DT)
 
 			tick_input_opponent := opponent_input(opponent, player)
-			simulate_fighter(&opponent, tick_input_opponent, FIXED_DT)
+			simulate_fighter(&opponent, tick_input_opponent, player_pos_x, FIXED_DT)
 			accumulator -= FIXED_DT
 		}
 
