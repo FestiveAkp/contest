@@ -48,7 +48,7 @@ main :: proc() {
 		}
 
 		rl.BeginDrawing()
-		rl.ClearBackground(rl.RAYWHITE)
+		rl.ClearBackground(rl.LIGHTGRAY)
 
 		rl.DrawLine(0, GROUND_Y, WINDOW_WIDTH, GROUND_Y, rl.DARKGRAY)
 		draw_fighter(player)
