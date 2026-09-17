@@ -419,7 +419,7 @@ test_light_attack_returns_to_idle_after_total_frames :: proc(t: ^testing.T) {
 		f.pos.x,
 		FIXED_DT,
 	)
-	for _ in 0 ..< LIGHT_ATTACK_TOTAL_FRAMES {
+	for _ in 0 ..< total_attack_frames(attack_defs[.Light]) {
 		testing.expect_value(t, f.state, FighterState.Attack)
 		simulate_fighter(
 			&f,

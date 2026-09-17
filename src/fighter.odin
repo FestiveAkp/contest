@@ -14,12 +14,13 @@ Facing :: enum {
 }
 
 Fighter :: struct {
-	pos:         rl.Vector2, // feet position (ground contact point)
-	vel_y:       f32,
-	grounded:    bool,
-	state:       FighterState,
-	state_frame: int, // ticks spent in the current state, reset on transition
-	facing:      Facing,
+	pos:            rl.Vector2, // feet position (ground contact point)
+	vel_y:          f32,
+	grounded:       bool,
+	state:          FighterState,
+	state_frame:    int, // ticks spent in the current state, reset on transition
+	facing:         Facing,
+	current_attack: AttackKind,
 }
 
 // Advances the fighter by one tick. Takes plain values instead of reading
@@ -28,7 +29,8 @@ Fighter :: struct {
 simulate_fighter :: proc(f: ^Fighter, input: TickInput, opponent_x: f32, dt: f32) {
 	f.facing = opponent_x >= f.pos.x ? .Right : .Left
 
-	attacking := f.state == .Attack || (input.light_attack_pressed && f.state != .Crouch)
+	_, wants_attack := pressed_attack(input)
+	attacking := f.state == .Attack || (wants_attack && f.grounded)
 
 	if !attacking {
 		if !input.crouch_held {
@@ -70,11 +72,19 @@ draw_fighter :: proc(f: Fighter) {
 	notch_x := f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 : f.pos.x - FIGHTER_WIDTH / 2
 	rl.DrawCircleV({notch_x, f.pos.y - height}, 5, rl.RED)
 
-	if f.state == .Attack &&
-	   f.state_frame >= LIGHT_ATTACK_STARTUP_FRAMES &&
-	   f.state_frame < LIGHT_ATTACK_STARTUP_FRAMES + LIGHT_ATTACK_ACTIVE_FRAMES {
-		arm_x :=
-			f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 + FIGHTER_WIDTH : f.pos.x - FIGHTER_WIDTH / 2 - FIGHTER_WIDTH
-		rl.DrawLineEx({f.pos.x, f.pos.y - height / 2}, {arm_x, f.pos.y - height / 2}, 6, rl.RED)
+	if f.state == .Attack {
+		attack_def := attack_defs[f.current_attack]
+
+		if f.state_frame >= attack_def.startup_frames &&
+		   f.state_frame < attack_def.startup_frames + attack_def.active_frames {
+			arm_x :=
+				f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 + FIGHTER_WIDTH : f.pos.x - FIGHTER_WIDTH / 2 - FIGHTER_WIDTH
+			rl.DrawLineEx(
+				{f.pos.x, f.pos.y - height / 2},
+				{arm_x, f.pos.y - height / 2},
+				6,
+				rl.RED,
+			)
+		}
 	}
 }
