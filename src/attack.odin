@@ -1,7 +1,5 @@
 package main
 
-import rl "vendor:raylib"
-
 AttackKind :: enum {
 	Light,
 	Medium,
@@ -22,20 +20,6 @@ attack_defs := [AttackKind]AttackDef {
 	.Light = {startup_frames = 6, active_frames = 3, recovery_frames = 10},
 	.Medium = {startup_frames = 10, active_frames = 4, recovery_frames = 16},
 	.Heavy = {startup_frames = 16, active_frames = 5, recovery_frames = 24},
-}
-
-AttackVisual :: struct {
-	reach:     f32,
-	thickness: f32,
-	color:     rl.Color,
-}
-
-// Reach/thickness/color of the attack's arm swing, purely for telling the
-// three attack kinds apart on screen until real sprites exist.
-attack_visuals := [AttackKind]AttackVisual {
-	.Light = {reach = FIGHTER_WIDTH, thickness = 4, color = rl.YELLOW},
-	.Medium = {reach = FIGHTER_WIDTH * 1.5, thickness = 7, color = rl.ORANGE},
-	.Heavy = {reach = FIGHTER_WIDTH * 2, thickness = 10, color = rl.RED},
 }
 
 pressed_attack :: proc(input: TickInput) -> (kind: AttackKind, ok: bool) {
