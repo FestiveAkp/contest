@@ -77,13 +77,14 @@ draw_fighter :: proc(f: Fighter) {
 
 		if f.state_frame >= attack_def.startup_frames &&
 		   f.state_frame < attack_def.startup_frames + attack_def.active_frames {
+			visual := attack_visuals[f.current_attack]
 			arm_x :=
-				f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 + FIGHTER_WIDTH : f.pos.x - FIGHTER_WIDTH / 2 - FIGHTER_WIDTH
+				f.facing == .Right ? f.pos.x + FIGHTER_WIDTH / 2 + visual.reach : f.pos.x - FIGHTER_WIDTH / 2 - visual.reach
 			rl.DrawLineEx(
 				{f.pos.x, f.pos.y - height / 2},
 				{arm_x, f.pos.y - height / 2},
-				6,
-				rl.RED,
+				visual.thickness,
+				visual.color,
 			)
 		}
 	}
